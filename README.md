@@ -1,13 +1,13 @@
 # EventB2Maude
 
 EventB2Maude maps probabilistic [Event-B](http://www.event-b.org/) models [1]
-to probabilistic rewrite theories [2]. This repository contain the base rewrite
-theory written in
+to probabilistic rewrite theories [2]. This repository contains the base
+rewrite theory written in
 [Maude](http://maude.cs.illinois.edu/w/index.php/The_Maude_System) needed to
 define sorts and operations to represent declared types/sets and constants of
 any context, as well as the infrastructure needed to encode the variables and
-the events of any probabilistic machine. Moreover, a parser written in [Python
-3.10](https://www.python.org/downloads/release/python-3100/) and
+the events of any probabilistic Event-B machine. Moreover, a parser written in
+[Python 3.10](https://www.python.org/downloads/release/python-3100/) and
 [Antlr4](https://pypi.org/project/antlr4-python3-runtime/) allows for extending
 the base theory to fully encode (probabilistic) Event-B models in Maude.  The
 resulting theory can be used for simulation in PMaude [2] and is amenable to
