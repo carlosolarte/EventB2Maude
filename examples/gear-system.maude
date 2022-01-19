@@ -1,0 +1,305 @@
+
+load ../m-theory/ebmachine .
+
+--- CONTEXT ctxGearSystem
+mod ctxGearSystem is
+  inc EBMACHINE * (sort Configuration to Config) .
+  eq init-sets = 
+   ('SUD |-> gen-set(("up" "down"))),
+   ('SER |-> gen-set(("extended" "retracted"))),
+   ('SOC |-> gen-set(("open" "closed")))
+  .
+
+  eq init-constants = 
+   ('FCMD |-> val(elt(9)))
+  .
+
+--- ===============================
+
+--- VARIABLES 
+ var $$handle : EBType .
+ var $$gear : EBType .
+ var $$door : EBType .
+ var $$cmd : EBType .
+
+--- CONSTANTS 
+ var $$FCMD : EBType .
+
+ vars $$CNAME $$MNAME : Qid .
+                   vars $$LEv $$LEv' : LEvent .
+                   var  $$Sets : Map{Qid, EBSet} .
+                   var  $$Cte  : Map{Qid, EBType} .
+                   var  $$WEIGHT : Nat .
+                   var  $$GUARD :  Bool .
+            
+--- ===============================
+
+  eq init-variables(< $$CNAME : Context | sets: ($$Sets),
+                                                         constants: ('FCMD |-> $$FCMD) >) =    ('handle |-> val(elt("up"))),
+   ('gear |-> val(elt("retracted"))),
+   ('door |-> val(elt("closed"))),
+   ('cmd |-> val(elt(0))) .
+
+
+-------------
+
+   --- Event pcmd
+
+--- Activation of the Event pcmd
+ceq [pcmd] :
+    < $$CNAME : Context | sets: ($$Sets),
+                        constants: ('FCMD |-> $$FCMD) >
+   < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> $$door , 'cmd |-> $$cmd) > 
+    < events  : Events  | state: ($$LEv ev('pcmd, unknown) $$LEv') >
+    =
+    < $$CNAME : Context | sets: ($$Sets),
+                        constants: ('FCMD |-> $$FCMD) >
+   < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> $$door , 'cmd |-> $$cmd) > 
+    if $$WEIGHT > 0 and $$GUARD == true
+    then 
+    < events  : Events  | state: ($$LEv ev('pcmd, enable($$WEIGHT)) $$LEv') >
+    else
+    < events  : Events  | state: ($$LEv ev('pcmd, blocked) $$LEv') >
+    fi
+if      $$WEIGHT := ebset2nat(($$FCMD) - ($$cmd)) 
+     /\ $$GUARD  := ebset2bool(($$cmd) <= ($$FCMD))  and  is-empty( (val(elt("up")) ! val(elt("down")) !) ) == false 
+.
+
+--- Change of state for event pcmd
+rl [pcmd] : 
+    < $$CNAME : Context | sets: ($$Sets),
+                        constants: ('FCMD |-> $$FCMD) >
+   < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> $$door , 'cmd |-> $$cmd) > 
+    < events  : Events  | state: ( ev('pcmd, execute) ) >
+    =>
+    < $$CNAME : Context | sets: ($$Sets),
+                         constants: ('FCMD |-> $$FCMD) >
+    < $$MNAME : Machine | variables: ('gear |-> $$gear , 'door |-> $$door , 'handle |-> choice(val(elt("up")) ! val(elt("down")) !) , 'cmd |-> ($$cmd) + (val(elt(1)))) > 
+    < events : Events | state: init-events >
+    .
+
+
+
+-------------
+
+   --- Event extend
+
+--- Activation of the Event extend
+ceq [extend] :
+    < $$CNAME : Context | sets: ($$Sets),
+                        constants: ('FCMD |-> $$FCMD) >
+   < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> $$door , 'cmd |-> $$cmd) > 
+    < events  : Events  | state: ($$LEv ev('extend, unknown) $$LEv') >
+    =
+    < $$CNAME : Context | sets: ($$Sets),
+                        constants: ('FCMD |-> $$FCMD) >
+   < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> $$door , 'cmd |-> $$cmd) > 
+    if $$WEIGHT > 0 and $$GUARD == true
+    then 
+    < events  : Events  | state: ($$LEv ev('extend, enable($$WEIGHT)) $$LEv') >
+    else
+    < events  : Events  | state: ($$LEv ev('extend, blocked) $$LEv') >
+    fi
+if      $$WEIGHT := ebset2nat(($$FCMD) + ($$cmd)) 
+     /\ $$GUARD  := ebset2bool(((($$handle) =b (val(elt("down")))) andb (($$door) =b (val(elt("open"))))) andb (($$gear) =b (val(elt("retracted"))))) 
+.
+
+--- Change of state for event extend
+rl [extend] : 
+    < $$CNAME : Context | sets: ($$Sets),
+                        constants: ('FCMD |-> $$FCMD) >
+   < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> $$door , 'cmd |-> $$cmd) > 
+    < events  : Events  | state: ( ev('extend, execute) ) >
+    =>
+    < $$CNAME : Context | sets: ($$Sets),
+                         constants: ('FCMD |-> $$FCMD) >
+    < $$MNAME : Machine | variables: ('handle |-> $$handle , 'door |-> $$door , 'gear |-> choice( val(elt("extended")) @ 0.9  val(elt("retracted")) @ 0.1) , 'cmd |-> val(elt(0))) > 
+    < events : Events | state: init-events >
+    .
+
+
+
+-------------
+
+   --- Event retract
+
+--- Activation of the Event retract
+ceq [retract] :
+    < $$CNAME : Context | sets: ($$Sets),
+                        constants: ('FCMD |-> $$FCMD) >
+   < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> $$door , 'cmd |-> $$cmd) > 
+    < events  : Events  | state: ($$LEv ev('retract, unknown) $$LEv') >
+    =
+    < $$CNAME : Context | sets: ($$Sets),
+                        constants: ('FCMD |-> $$FCMD) >
+   < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> $$door , 'cmd |-> $$cmd) > 
+    if $$WEIGHT > 0 and $$GUARD == true
+    then 
+    < events  : Events  | state: ($$LEv ev('retract, enable($$WEIGHT)) $$LEv') >
+    else
+    < events  : Events  | state: ($$LEv ev('retract, blocked) $$LEv') >
+    fi
+if      $$WEIGHT := ebset2nat(($$FCMD) + ($$cmd)) 
+     /\ $$GUARD  := ebset2bool(((($$handle) =b (val(elt("up")))) andb (($$door) =b (val(elt("open"))))) andb (($$gear) =b (val(elt("extended"))))) 
+.
+
+--- Change of state for event retract
+rl [retract] : 
+    < $$CNAME : Context | sets: ($$Sets),
+                        constants: ('FCMD |-> $$FCMD) >
+   < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> $$door , 'cmd |-> $$cmd) > 
+    < events  : Events  | state: ( ev('retract, execute) ) >
+    =>
+    < $$CNAME : Context | sets: ($$Sets),
+                         constants: ('FCMD |-> $$FCMD) >
+    < $$MNAME : Machine | variables: ('handle |-> $$handle , 'door |-> $$door , 'gear |-> choice( val(elt("extended")) @ 0.1  val(elt("retracted")) @ 0.9) , 'cmd |-> val(elt(0))) > 
+    < events : Events | state: init-events >
+    .
+
+
+
+-------------
+
+   --- Event open
+
+--- Activation of the Event open
+ceq [open] :
+    < $$CNAME : Context | sets: ($$Sets),
+                        constants: ('FCMD |-> $$FCMD) >
+   < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> $$door , 'cmd |-> $$cmd) > 
+    < events  : Events  | state: ($$LEv ev('open, unknown) $$LEv') >
+    =
+    < $$CNAME : Context | sets: ($$Sets),
+                        constants: ('FCMD |-> $$FCMD) >
+   < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> $$door , 'cmd |-> $$cmd) > 
+    if $$WEIGHT > 0 and $$GUARD == true
+    then 
+    < events  : Events  | state: ($$LEv ev('open, enable($$WEIGHT)) $$LEv') >
+    else
+    < events  : Events  | state: ($$LEv ev('open, blocked) $$LEv') >
+    fi
+if      $$WEIGHT := ebset2nat(($$FCMD) + ($$cmd)) 
+     /\ $$GUARD  := ebset2bool((($$door) =b (val(elt("closed")))) andb ( ( ( ( (($$handle) =b (val(elt("down")))) andb (($$gear) =b (val(elt("retracted")))) )) orb ( ( (($$handle) =b (val(elt("up")))) andb (($$gear) =b (val(elt("extended")))) )) ))) 
+.
+
+--- Change of state for event open
+rl [open] : 
+    < $$CNAME : Context | sets: ($$Sets),
+                        constants: ('FCMD |-> $$FCMD) >
+   < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> $$door , 'cmd |-> $$cmd) > 
+    < events  : Events  | state: ( ev('open, execute) ) >
+    =>
+    < $$CNAME : Context | sets: ($$Sets),
+                         constants: ('FCMD |-> $$FCMD) >
+    < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> choice( val(elt("open")) @ 0.9  val(elt("closed")) @ 0.1) , 'cmd |-> val(elt(0))) > 
+    < events : Events | state: init-events >
+    .
+
+
+
+-------------
+
+   --- Event close
+
+--- Activation of the Event close
+ceq [close] :
+    < $$CNAME : Context | sets: ($$Sets),
+                        constants: ('FCMD |-> $$FCMD) >
+   < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> $$door , 'cmd |-> $$cmd) > 
+    < events  : Events  | state: ($$LEv ev('close, unknown) $$LEv') >
+    =
+    < $$CNAME : Context | sets: ($$Sets),
+                        constants: ('FCMD |-> $$FCMD) >
+   < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> $$door , 'cmd |-> $$cmd) > 
+    if $$WEIGHT > 0 and $$GUARD == true
+    then 
+    < events  : Events  | state: ($$LEv ev('close, enable($$WEIGHT)) $$LEv') >
+    else
+    < events  : Events  | state: ($$LEv ev('close, blocked) $$LEv') >
+    fi
+if      $$WEIGHT := ebset2nat(($$FCMD) + ($$cmd)) 
+     /\ $$GUARD  := ebset2bool((($$door) =b (val(elt("open")))) andb ( ( ( ( (($$handle) =b (val(elt("down")))) andb (($$gear) =b (val(elt("extended")))) )) orb ( ( (($$handle) =b (val(elt("up")))) andb (($$gear) =b (val(elt("retracted")))) )) ))) 
+.
+
+--- Change of state for event close
+rl [close] : 
+    < $$CNAME : Context | sets: ($$Sets),
+                        constants: ('FCMD |-> $$FCMD) >
+   < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> $$door , 'cmd |-> $$cmd) > 
+    < events  : Events  | state: ( ev('close, execute) ) >
+    =>
+    < $$CNAME : Context | sets: ($$Sets),
+                         constants: ('FCMD |-> $$FCMD) >
+    < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> choice( val(elt("open")) @ 0.1  val(elt("closed")) @ 0.9) , 'cmd |-> val(elt(0))) > 
+    < events : Events | state: init-events >
+    .
+
+
+
+              --- Initialization of events
+              eq init-events = ev('pcmd, unknown) ev('extend, unknown) ev('retract, unknown) ev('open, unknown) ev('close, unknown) .
+
+              --- Rule for choosing the next event to be executed
+              --- It stops when the system is in a deadlock or the limit 
+              --- MAX-STEPS is reached. 
+              var nsteps : Nat .
+              crl [next-event] :
+                 < events : Events | state: ($$LEv) > 
+                 steps(nsteps)
+                 =>
+                 < events : Events | state: choose-event($$LEv') >
+                 steps(nsteps + 1)
+              if
+                    nsteps <= MAX-STEPS
+                /\  not-unknown($$LEv) --- all the guards have been checked
+                /\  one-firable($$LEv) --- one of the events is firable
+                /\  $$LEv' := accumulate(enabled-events($$LEv)) --- extract the enabled events and accumulate
+              .
+
+            --- PVesTa ---------------------------------------
+            var Conf : Config .
+            op tick : Config -> Config .
+            eq tick( Conf )  = Conf .
+            op MAX-STEPS : -> Nat .
+            eq MAX-STEPS = 10000 .
+            op steps : Nat -> Config .
+
+            --- Observable properties
+            op val : Nat Config -> Float .
+
+            --- Simulation steps
+            eq val(0, Conf steps(N:Nat) ) = float(N:Nat) .
+
+            --- This definition depends on the system
+            --- Change 1.0 with, for instance,   float(ebset2nat($$n)) 
+            --- eq val(1, Conf < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> $$door , 'cmd |-> $$cmd) > ) = 1.0 . 
+            --- Properties can be also defined in the .b file with a section PROPERTIES
+
+
+eq val(1, Conf < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> $$door , 'cmd |-> $$cmd) > ) 
+  = toFloat((($$door) =b (val(elt("open"))))) .
+
+eq val(2, Conf < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> $$door , 'cmd |-> $$cmd) > ) 
+  = toFloat((($$gear) =b (val(elt("extended"))))) .
+
+eq val(3, Conf < $$MNAME : Machine | variables: ('handle |-> $$handle , 'gear |-> $$gear , 'door |-> $$door , 'cmd |-> $$cmd) > ) 
+  = toFloat(($$cmd)) .
+
+
+              ---- Defining the initial state
+              op initState : Nat -> Config .
+              op initState : -> Config .
+              rl initState => initState(counter) .
+
+              eq initState(N:Nat) = init-machine('ctxGearSystem, 'GearSystem) steps(0)  .
+
+
+            --- PVesTa ---------------------------------------
+
+            endm
+
+            eof
+
+            --- examples of use
+            rew [1] initState .
+

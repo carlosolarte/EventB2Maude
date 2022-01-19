@@ -1,0 +1,39 @@
+***(
+  Sampler
+  Definition of functions for probabilistic sampling. This file is a modified 
+  version of the one available for PMAude
+***)
+
+
+mod SAMPLER is
+  pr RANDOM .
+  pr COUNTER .
+  pr CONVERSION .
+
+  op rand : -> [Nat] .
+  rl rand => random(counter) .
+
+  op sampleBerWithP : Float -> Bool .
+  op sampleUniWithInt : Nat -> Nat .       
+  op genRandom : Float Float -> [Float] .
+  var N : Nat .
+
+  op rand : Nat -> Float .
+  eq [rnd] : rand(N) = float(random(N) / 4294967296) .
+
+  op rand : -> [Float] .
+  rl [rnd] : rand => float(random(counter) / 4294967296) .
+
+  op rrand : -> [Rat] .
+  rl [rrnd] : rrand => random(counter) / 4294967296 .
+	
+  var R R1 Min Max : Float .
+
+  eq sampleBerWithP(R) = if rand < R then true else false fi . 
+  eq sampleUniWithInt(N) = floor(rrand * N) .
+  eq genRandom(Min, Max) = rand * (Max - Min) + Min .
+
+  --- Uniform distribution 
+  op uniform : Nat -> Nat .
+  eq uniform(N) =  random(counter) rem N .
+endm
