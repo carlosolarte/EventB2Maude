@@ -1,4 +1,4 @@
-ANTLR = antlr
+ANTLR = antlr4
 
 all: compile 
 

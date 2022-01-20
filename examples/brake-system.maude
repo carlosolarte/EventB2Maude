@@ -19,6 +19,8 @@ mod ctxBrakeSystem is
  var $$pedal : EBType .
  var $$brake : EBType .
  var $$wear : EBType .
+ var $$time : EBType .
+ var $$fail : EBType .
 
 --- CONSTANTS 
  var $$MAXWEAR : EBType .
@@ -35,7 +37,9 @@ mod ctxBrakeSystem is
   eq init-variables(< $$CNAME : Context | sets: ($$Sets),
                                                          constants: ('MAXWEAR |-> $$MAXWEAR) >) =    ('pedal |-> val(elt("up"))),
    ('brake |-> val(elt("released"))),
-   ('wear |-> val(elt(0))) .
+   ('wear |-> val(elt(0))),
+   ('time |-> val(elt(0))),
+   ('fail |-> val(elt(0))) .
 
 
 -------------
@@ -46,12 +50,12 @@ mod ctxBrakeSystem is
 ceq [PushPedal] :
     < $$CNAME : Context | sets: ($$Sets),
                         constants: ('MAXWEAR |-> $$MAXWEAR) >
-   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear) > 
+   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear , 'time |-> $$time , 'fail |-> $$fail) > 
     < events  : Events  | state: ($$LEv ev('PushPedal, unknown) $$LEv') >
     =
     < $$CNAME : Context | sets: ($$Sets),
                         constants: ('MAXWEAR |-> $$MAXWEAR) >
-   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear) > 
+   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear , 'time |-> $$time , 'fail |-> $$fail) > 
     if $$WEIGHT > 0 and $$GUARD == true
     then 
     < events  : Events  | state: ($$LEv ev('PushPedal, enable($$WEIGHT)) $$LEv') >
@@ -66,51 +70,12 @@ if      $$WEIGHT := ebset2nat($$MAXWEAR)
 rl [PushPedal] : 
     < $$CNAME : Context | sets: ($$Sets),
                         constants: ('MAXWEAR |-> $$MAXWEAR) >
-   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear) > 
+   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear , 'time |-> $$time , 'fail |-> $$fail) > 
     < events  : Events  | state: ( ev('PushPedal, execute) ) >
     =>
     < $$CNAME : Context | sets: ($$Sets),
                          constants: ('MAXWEAR |-> $$MAXWEAR) >
-    < $$MNAME : Machine | variables: ('brake |-> $$brake , 'wear |-> $$wear , 'pedal |-> choice( val(elt("down")) @ 0.9  val(elt("up")) @ 0.1)) > 
-    < events : Events | state: init-events >
-    .
-
-
-
--------------
-
-   --- Event ReleasePedal
-
---- Activation of the Event ReleasePedal
-ceq [ReleasePedal] :
-    < $$CNAME : Context | sets: ($$Sets),
-                        constants: ('MAXWEAR |-> $$MAXWEAR) >
-   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear) > 
-    < events  : Events  | state: ($$LEv ev('ReleasePedal, unknown) $$LEv') >
-    =
-    < $$CNAME : Context | sets: ($$Sets),
-                        constants: ('MAXWEAR |-> $$MAXWEAR) >
-   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear) > 
-    if $$WEIGHT > 0 and $$GUARD == true
-    then 
-    < events  : Events  | state: ($$LEv ev('ReleasePedal, enable($$WEIGHT)) $$LEv') >
-    else
-    < events  : Events  | state: ($$LEv ev('ReleasePedal, blocked) $$LEv') >
-    fi
-if      $$WEIGHT := ebset2nat($$MAXWEAR) 
-     /\ $$GUARD  := ebset2bool(($$pedal) =b (val(elt("down")))) 
-.
-
---- Change of state for event ReleasePedal
-rl [ReleasePedal] : 
-    < $$CNAME : Context | sets: ($$Sets),
-                        constants: ('MAXWEAR |-> $$MAXWEAR) >
-   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear) > 
-    < events  : Events  | state: ( ev('ReleasePedal, execute) ) >
-    =>
-    < $$CNAME : Context | sets: ($$Sets),
-                         constants: ('MAXWEAR |-> $$MAXWEAR) >
-    < $$MNAME : Machine | variables: ('brake |-> $$brake , 'wear |-> $$wear , 'pedal |-> val(elt("up"))) > 
+    < $$MNAME : Machine | variables: ('brake |-> $$brake , 'wear |-> $$wear , 'fail |-> $$fail , 'pedal |-> val(elt("down")) , 'time |-> ($$time) + (val(elt(1)))) > 
     < events : Events | state: init-events >
     .
 
@@ -124,12 +89,12 @@ rl [ReleasePedal] :
 ceq [ApplyBrake] :
     < $$CNAME : Context | sets: ($$Sets),
                         constants: ('MAXWEAR |-> $$MAXWEAR) >
-   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear) > 
+   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear , 'time |-> $$time , 'fail |-> $$fail) > 
     < events  : Events  | state: ($$LEv ev('ApplyBrake, unknown) $$LEv') >
     =
     < $$CNAME : Context | sets: ($$Sets),
                         constants: ('MAXWEAR |-> $$MAXWEAR) >
-   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear) > 
+   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear , 'time |-> $$time , 'fail |-> $$fail) > 
     if $$WEIGHT > 0 and $$GUARD == true
     then 
     < events  : Events  | state: ($$LEv ev('ApplyBrake, enable($$WEIGHT)) $$LEv') >
@@ -144,12 +109,12 @@ if      $$WEIGHT := ebset2nat(($$MAXWEAR) - ($$wear))
 rl [ApplyBrake] : 
     < $$CNAME : Context | sets: ($$Sets),
                         constants: ('MAXWEAR |-> $$MAXWEAR) >
-   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear) > 
+   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear , 'time |-> $$time , 'fail |-> $$fail) > 
     < events  : Events  | state: ( ev('ApplyBrake, execute) ) >
     =>
     < $$CNAME : Context | sets: ($$Sets),
                          constants: ('MAXWEAR |-> $$MAXWEAR) >
-    < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> val(elt("applied")) , 'wear |-> ($$wear) + (val(elt(1)))) > 
+    < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'fail |-> $$fail , 'brake |-> val(elt("applied")) , 'wear |-> ($$wear) + (val(elt(1))) , 'time |-> ($$time) + (val(elt(1)))) > 
     < events : Events | state: init-events >
     .
 
@@ -163,12 +128,12 @@ rl [ApplyBrake] :
 ceq [ApplyBrakeFailure] :
     < $$CNAME : Context | sets: ($$Sets),
                         constants: ('MAXWEAR |-> $$MAXWEAR) >
-   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear) > 
+   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear , 'time |-> $$time , 'fail |-> $$fail) > 
     < events  : Events  | state: ($$LEv ev('ApplyBrakeFailure, unknown) $$LEv') >
     =
     < $$CNAME : Context | sets: ($$Sets),
                         constants: ('MAXWEAR |-> $$MAXWEAR) >
-   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear) > 
+   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear , 'time |-> $$time , 'fail |-> $$fail) > 
     if $$WEIGHT > 0 and $$GUARD == true
     then 
     < events  : Events  | state: ($$LEv ev('ApplyBrakeFailure, enable($$WEIGHT)) $$LEv') >
@@ -183,12 +148,12 @@ if      $$WEIGHT := ebset2nat($$wear)
 rl [ApplyBrakeFailure] : 
     < $$CNAME : Context | sets: ($$Sets),
                         constants: ('MAXWEAR |-> $$MAXWEAR) >
-   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear) > 
+   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear , 'time |-> $$time , 'fail |-> $$fail) > 
     < events  : Events  | state: ( ev('ApplyBrakeFailure, execute) ) >
     =>
     < $$CNAME : Context | sets: ($$Sets),
                          constants: ('MAXWEAR |-> $$MAXWEAR) >
-    < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'wear |-> $$wear , 'brake |-> val(elt("released"))) > 
+    < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'wear |-> $$wear , 'brake |-> val(elt("released")) , 'time |-> ($$time) + (val(elt(1))) , 'fail |-> ($$fail) + (val(elt(1)))) > 
     < events : Events | state: init-events >
     .
 
@@ -202,12 +167,12 @@ rl [ApplyBrakeFailure] :
 ceq [ReleaseBrake] :
     < $$CNAME : Context | sets: ($$Sets),
                         constants: ('MAXWEAR |-> $$MAXWEAR) >
-   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear) > 
+   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear , 'time |-> $$time , 'fail |-> $$fail) > 
     < events  : Events  | state: ($$LEv ev('ReleaseBrake, unknown) $$LEv') >
     =
     < $$CNAME : Context | sets: ($$Sets),
                         constants: ('MAXWEAR |-> $$MAXWEAR) >
-   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear) > 
+   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear , 'time |-> $$time , 'fail |-> $$fail) > 
     if $$WEIGHT > 0 and $$GUARD == true
     then 
     < events  : Events  | state: ($$LEv ev('ReleaseBrake, enable($$WEIGHT)) $$LEv') >
@@ -215,26 +180,26 @@ ceq [ReleaseBrake] :
     < events  : Events  | state: ($$LEv ev('ReleaseBrake, blocked) $$LEv') >
     fi
 if      $$WEIGHT := ebset2nat(($$MAXWEAR) - ($$wear)) 
-     /\ $$GUARD  := ebset2bool((($$pedal) =b (val(elt("up")))) andb (($$brake) =b (val(elt("applied"))))) 
+     /\ $$GUARD  := ebset2bool((($$pedal) =b (val(elt("down")))) andb (($$brake) =b (val(elt("applied"))))) 
 .
 
 --- Change of state for event ReleaseBrake
 rl [ReleaseBrake] : 
     < $$CNAME : Context | sets: ($$Sets),
                         constants: ('MAXWEAR |-> $$MAXWEAR) >
-   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear) > 
+   < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear , 'time |-> $$time , 'fail |-> $$fail) > 
     < events  : Events  | state: ( ev('ReleaseBrake, execute) ) >
     =>
     < $$CNAME : Context | sets: ($$Sets),
                          constants: ('MAXWEAR |-> $$MAXWEAR) >
-    < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'wear |-> $$wear , 'brake |-> val(elt("released"))) > 
+    < $$MNAME : Machine | variables: ('wear |-> $$wear , 'time |-> $$time , 'fail |-> $$fail , 'brake |-> val(elt("released")) , 'pedal |-> val(elt("up"))) > 
     < events : Events | state: init-events >
     .
 
 
 
               --- Initialization of events
-              eq init-events = ev('PushPedal, unknown) ev('ReleasePedal, unknown) ev('ApplyBrake, unknown) ev('ApplyBrakeFailure, unknown) ev('ReleaseBrake, unknown) .
+              eq init-events = ev('PushPedal, unknown) ev('ApplyBrake, unknown) ev('ApplyBrakeFailure, unknown) ev('ReleaseBrake, unknown) .
 
               --- Rule for choosing the next event to be executed
               --- It stops when the system is in a deadlock or the limit 
@@ -269,14 +234,17 @@ rl [ReleaseBrake] :
 
             --- This definition depends on the system
             --- Change 1.0 with, for instance,   float(ebset2nat($$n)) 
-            --- eq val(1, Conf < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear) > ) = 1.0 . 
+            --- eq val(1, Conf < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear , 'time |-> $$time , 'fail |-> $$fail) > ) = 1.0 . 
             --- Properties can be also defined in the .b file with a section PROPERTIES
 
 
-eq val(1, Conf < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear) > ) 
-  = toFloat((($$brake) =b (val(elt("applied"))))) .
+eq val(1, Conf < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear , 'time |-> $$time , 'fail |-> $$fail) > ) 
+  = toFloat(($$time)) .
 
-eq val(2, Conf < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear) > ) 
+eq val(2, Conf < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear , 'time |-> $$time , 'fail |-> $$fail) > ) 
+  = toFloat(($$fail)) .
+
+eq val(3, Conf < $$MNAME : Machine | variables: ('pedal |-> $$pedal , 'brake |-> $$brake , 'wear |-> $$wear , 'time |-> $$time , 'fail |-> $$fail) > ) 
   = toFloat(($$wear)) .
 
 
