@@ -85,7 +85,7 @@ model : context
         props?
         ;
 
-COMMENT    : ('#' .*? '#') -> skip ;
+COMMENT    : ('#' .*? ('#' | '\n' )) -> skip ;
 
 // CONTEXT 
 context: CONTEXT    ID

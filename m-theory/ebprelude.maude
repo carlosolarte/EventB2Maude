@@ -568,9 +568,11 @@ mod EB-CHOICE is
     eq choice(val(S)) = choice(toEBVChoice(makeList(S))) .
     eq choice(val(R)) = choice(toEBVChoice(makeList(R))) .
 
-    --- This is for handling  val(x) |-> t
+    --- These operators  lift |-> to  val(x) |-> t and val(x) |-> val(y)
     op _|->_ : EBType EBElt -> EBPair .
     eq val(e) |-> e' =  e |-> e' .
+    op _|->_ : EBType EBType -> EBPair .
+    eq val(e) |-> val(e') =  e |-> e' .
 endm
 
 --- Module to be included to implement contexts/machines
