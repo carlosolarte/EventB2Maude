@@ -39,6 +39,7 @@ POWERSET          : 'POW' ;
 
 // Expressions on sets and relations
 EMPTY             : 'empty' ;
+EMPTYREL          : 'emptyrel' ;
 DOM               : 'dom' ;
 RAN               : 'ran' ;
 CARD              : 'card' ;
@@ -147,6 +148,7 @@ svalue     : bvalue | pvalue ;     // Single values
 
 // Simple lists of values
 blvalue    :   EMPTY  
+             | EMPTYREL 
              | '{' svaluelist '}' 
              | '{' expr INTRANGE expr '}'
              ; 

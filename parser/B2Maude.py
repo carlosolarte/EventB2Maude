@@ -238,7 +238,9 @@ class BMaude(EventBListener):
         def ParseBLValue(ctx):
             '''Processing basic list of values'''
             if ctx.EMPTY(): # Empty set
-                return 'val(empty)'
+                return 'val((empty).EBSet)'
+            if ctx.EMPTYREL(): # Empty set of pairs
+                return 'val((empty).EBRel)'
 
             if ctx.svaluelist(): # Explicit enumeration of values
                 return f'val( ( {ParseListValues(ctx.svaluelist())} ) )'
