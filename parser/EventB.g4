@@ -77,7 +77,7 @@ RELSYM            : '<' | '>' | '>=' | '<=' ;
 SEP               : ',' ;
 WHITESPACE        : (' ' | '\t')+ -> skip  ;
 NEWLINE           : ('\r'? '\n' | '\r')+ -> skip ;
-ID                : '_'* [A-Za-z][A-Za-z0-9_]* ;
+ID                : '_'* [A-Za-z][A-Za-z0-9_\-]* ;
 
 // Initial production
 model : context  
@@ -85,7 +85,7 @@ model : context
         props?
         ;
 
-COMMENT    : ('#' ~('#')* '#') -> skip ;
+COMMENT    : ('#' .*? '#') -> skip ;
 
 // CONTEXT 
 context: CONTEXT    ID
