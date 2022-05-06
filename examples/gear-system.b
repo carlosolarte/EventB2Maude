@@ -1,4 +1,6 @@
-# Gear system #
+# Gear system modeled in Aouadhi, M.A., Delahaye, B., Lanoix, A.: A Fully
+# Probabilistic Extension of Event-B. Research report, LINA-University of
+# Nantes (Jan 2016).
 
 CONTEXT ctxGearSystem
 SETS 

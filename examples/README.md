@@ -27,9 +27,29 @@ The file `p2p-protocol.b` presents an alternative model to the one reported in
 1..K -> {emp, ok, download}` where `N` is the number of clients and `K` is the
 number of blocks, here the file is a function `0.. N*K-1 -> {emp, ok,
 download}`. Consistently, `i -> S` represents that the block `i/N` of the
-client `i mod N` is currently in state `S`. The file `results.odt` reports
-the expected number of times a block needs to be (re)transmitted (due to
-failures) for different values of `N` and `K`. 
+client `i mod N` is currently in state `S`. The file `results.odt` reports the
+expected number of times a block needs to be (re)transmitted (due to failures)
+for different values of `N` and `K`. The plots below show the expected value
+for the number of blocks transmitted.
+
+<img src="./plot-p2p.png">
+
+<img src="./plot-p2p.png">
+
+## Bounded re-transmission protocol
+
+The files `b-retrans-4.b` and `b-retrans-5.b` present, respectively, the fourth
+and fifth refinements of the bounded re-transmission protocol modeled in
+Event-B in [4, Chapter 6]. This model is not probabilistic but the fifth
+refinement introduces events for changing the state of the activation bits,
+thus simulating failures. After a number `MAX` of retries, the sender and the
+receiver end the protocol in state `failure`. By assigning the same weight to
+the different events of the system, the model becomes probabilistic. The file
+`results.odt` reports the expected probability of ending the protocol in state
+`success` for different values of `MAX`. 
+
+<img src="./plot-brtp.png">
+
 
 ## References
 [1]  Aouadhi, M.A., Delahaye, B., Lanoix, A.: A Fully Probabilistic Extension
@@ -40,4 +60,7 @@ Probabilistic Event-B. Research report, LINA-University of Nantes (Apr 2016).
 
 [3] Aouadhi, M.A., Delahaye, B., Lanoix, A.: Introducing probabilistic
 reasoning within Event-B. Softw. Syst. Model. 18(3), 1953–1984 (2019)
+
+[4] Jean-Raymond Abrial: Modeling in Event-B - System and Software Engineering.
+Cambridge University Press (2010)
 

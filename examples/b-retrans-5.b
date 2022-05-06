@@ -1,5 +1,6 @@
 # Bounded re-transmission protocol (Chapter 6, Abrial's book)
 # 5th refinement of the model  #
+# The content of the file is irrelevant. Hence, d always take the value D2
 
 CONTEXT ctxBRTP
 SETS 
@@ -9,7 +10,6 @@ CONSTANTS
     N : Nat := 100    # Size of the file #
     MAX : Nat := 20   # Number of retries #
 END
-
 
 MACHINE BRTP
   SEES ctxBRTP

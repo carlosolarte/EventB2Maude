@@ -19,6 +19,17 @@ For using [PVeSta](http://maude.cs.uiuc.edu/tools/pvesta/), Maude alpha110 and
 Java 1.8 are needed. Moreover, for using the parser, Python 3.10 and Antlr4 are
 needed. 
 
+## Case studies
+
+The directory [examples](./examples) contains several case studies and
+simulation results, including:
+- A controller for a landing gear system.
+- An emergency brake system.
+- A P2P protocol.
+- Two refinements for the bounded retransmission protocol. 
+
+See the references in [examples](./examples) for further details. 
+
 ## Structure of the project
 - The directory `m-theory` contains the base rewrite theory for representing
   any (probabilistic) Event-B context and machine. The module `EB-TYPE` defines

@@ -1,4 +1,9 @@
-# P2P Protocol #
+# P2P Protocol model in Aouadhi, M.A., Delahaye, B., Lanoix, A.: Introducing
+# probabilistic reasoning within Event-B. Softw. Syst. Model. 18(3)
+# (2019)
+# Here the file is a function 0.. N*K-1 -> {emp, ok, download}. Consistently, 
+# i -> S represents that the block i/N of the client i mod N is currently in
+# state S
 
 CONTEXT ctxP2P
 SETS 
@@ -8,23 +13,19 @@ CONSTANTS
     K : Nat := 10 # Number of blocks #
 END
 
-
 MACHINE P2P
   SEES ctxP2P
   VARIABLES
-    
     file
     n
     done
 
   INVARIANTS
-
     file :  POW ( Nat ** STATE )
     n    : Nat 
     done : Bool
 
   INITIALISATION
-
     file    := {0 .. (N * K - 1) } ** { emp }
     n       := 0
     done    := False

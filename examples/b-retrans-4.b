@@ -1,5 +1,6 @@
 # Bounded re-transmission protocol (Chapter 6, Abrial's book)
 # 4th refinement of the model  #
+# The content of the file is irrelevant. Hence, D always take the value D2
 CONTEXT ctxBRTP
 SETS 
     STATE : {working, success, failure }
