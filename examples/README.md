@@ -34,7 +34,7 @@ for the number of blocks transmitted.
 
 <img src="./plot-p2p.png">
 
-<img src="./plot-p2p.png">
+<img src="./plot-p2p-rate.png">
 
 ## Bounded re-transmission protocol
 
