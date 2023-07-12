@@ -315,8 +315,5 @@ eq val(2, Conf < $$MNAME : Machine | variables: ('fileR |-> $$fileR , 'counterR 
   eq initState(N:Nat) = init-machine('ctxBRTP, 'BRTP) steps(0)  .
 endm
 
-eof
-
---- example of use
-rew [1] initState .
+rew initState .
 

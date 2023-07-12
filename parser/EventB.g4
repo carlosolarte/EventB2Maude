@@ -139,11 +139,12 @@ val        :   bvalue  // basic values
 
 bvalue    :    INT 
              | boolV 
-             | ID // constants from deferred sets
+             | ID // constants from deferred sets or ID's for deferred sets
              ; 
 
 boolV      : TRUE | FALSE  ; 
-pvalue     : bvalue '|->' bvalue ; // Pairs 
+pvalue     : bvalue '|->' bvalue |
+             '(' expr ')' '|->' '(' expr ')' ; // Pairs 
 svalue     : bvalue | pvalue ;     // Single values
 
 // Simple lists of values
@@ -199,6 +200,7 @@ expr : val                                                              # ExprVa
        | '{' intrange '}'                                               # IntRangeExpr
        | '{' ID '.' expr '|' expr '}'                                   # MapExpr 
        | '{' ID '.' expr '||' expr '}'                                  # FilterExpr 
+       | expr '(' expr ')'                                              # FuncApp
        ;
 
 // Events

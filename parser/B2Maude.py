@@ -128,6 +128,9 @@ class BMaude(EventBListener):
 
             return binsymbol(sym, infix=False)
 
+        if type(ctx) == EventBParser.FuncAppContext:
+            return  '(' + self.parseExpr(ctx.expr()[0]) + " ) (" + self.parseExpr(ctx.expr()[1]) + ")"
+
         if type(ctx) == EventBParser.MapExprContext:
             _id = ctx.ID().getText()
             self._lambda += 1 # Naming the Map Expression
@@ -206,10 +209,10 @@ class BMaude(EventBListener):
                     else: # List of values
                         return f'choice({choice})'
 
-                # A constant from a deferred set
-                if valT not in self._defctes:
-                    print(f"[Warning] Constant {valT} not defined")
-                return  wrapper(f'elt({BMaude.prepstr(str, valT)})')
+                if valT in self._defctes: # A constant
+                    return  wrapper(f'elt({BMaude.prepstr(str, valT)})')
+
+                print(f"[Warning] {valT} not defined")
 
 
         if type(ctxV)==EventBParser.BvalueContext: # Basic values
@@ -220,12 +223,17 @@ class BMaude(EventBListener):
 
         if ctxV.pvalue(): # tuples 
             wrapper = wrapperval if addVal else wrapperid
-            bt1 = ctxV.pvalue().bvalue()[0]
-            bt2 = ctxV.pvalue().bvalue()[1]
+            if ctxV.pvalue().bvalue() : # basic values on the right and left hand sides
+                bt1 = ctxV.pvalue().bvalue()[0]
+                bt2 = ctxV.pvalue().bvalue()[1]
 
-            bt1val = procBType( bt1, addVal=False)
-            bt2val = procBType( bt2, addVal=False)
+                bt1val = procBType( bt1, addVal=False)
+                bt2val = procBType( bt2, addVal=False)
 
+            else: # Expressions using { } as delimiter
+                bt1val = self.parseExpr(ctxV.pvalue().expr()[0])
+                bt2val = self.parseExpr(ctxV.pvalue().expr()[1])
+            
             return wrapper(bt1val + " |-> " + bt2val)
 
         def ParseListValues(ctx):

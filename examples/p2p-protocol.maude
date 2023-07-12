@@ -16,7 +16,7 @@ mod ctxP2P is
   .
 
   eq init-constants = 
-   ('N |-> val(elt(5))),
+   ('N |-> val(elt(10))),
    ('K |-> val(elt(10)))
   .
 

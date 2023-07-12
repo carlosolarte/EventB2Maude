@@ -274,6 +274,11 @@ fmod EBRELATION is
   eq $image((p, R), A, B)
    = $image(R, A, (if first(p) in A then second(p) else empty fi, B)) .
 
+   --- Function application (assuming that the relation is a function)
+   op _`(_`) : EBRel EBElt ~> EBElt .
+   ceq R ( e ) = e'
+    if e' := R [ e ] .
+
   --- Forward composition
   op _;_ : EBRel EBRel -> EBRel .
   op $forward : EBRel EBRel EBRel -> EBRel .
@@ -466,6 +471,12 @@ fmod EB-TYPE is
    eq val(e) in  val(S)= val(elt(e in S)) .
    op _nin_ : EBType EBType -> EBType .
    eq val(e) nin val(S) = val(elt(not (e in S))) .
+
+   op _[_] : EBType EBType -> EBType .
+   eq val(R) [ val(S) ] = val( R [S]  ) .
+
+   op _`(_`) : EBType EBType -> EBType .
+   eq val(R) ( val(e) ) = val( R ( e )  ) .
 
 
 endfm

@@ -17,8 +17,8 @@ mod ctxBRTP is
   .
 
   eq init-constants = 
-   ('N |-> val(elt(100))),
-   ('MAX |-> val(elt(20)))
+   ('N |-> val(elt(1))),
+   ('MAX |-> val(elt(100)))
   .
 
 --- ===============================
@@ -556,6 +556,9 @@ eq val(1, Conf < $$MNAME : Machine | variables: ('r |-> $$r , 'g |-> $$g , 'rst 
 eq val(2, Conf < $$MNAME : Machine | variables: ('r |-> $$r , 'g |-> $$g , 'rst |-> $$rst , 'sst |-> $$sst , 's |-> $$s , 'd |-> $$d , 'w |-> $$w , 'db |-> $$db , 'ab |-> $$ab , 'v |-> $$v , 'l |-> $$l , 'c |-> $$c) > ) 
   = toFloat(((($$sst) =b (val(elt("success")))) andb (($$rst) =b (val(elt("success")))))) .
 
+eq val(3, Conf < $$MNAME : Machine | variables: ('r |-> $$r , 'g |-> $$g , 'rst |-> $$rst , 'sst |-> $$sst , 's |-> $$s , 'd |-> $$d , 'w |-> $$w , 'db |-> $$db , 'ab |-> $$ab , 'v |-> $$v , 'l |-> $$l , 'c |-> $$c) > ) 
+  = toFloat(((($$sst) =b (val(elt("success")))) andb (($$rst) =b (val(elt("success")))))) .
+
 
   ---- Defining the initial state
   op initState : Nat -> Config .
@@ -565,8 +568,8 @@ eq val(2, Conf < $$MNAME : Machine | variables: ('r |-> $$r , 'g |-> $$g , 'rst 
   eq initState(N:Nat) = init-machine('ctxBRTP, 'BRTP) steps(0)  .
 endm
 
-eof
 
 --- example of use
-rew [1] initState .
+rew initState .
 
+quit .
