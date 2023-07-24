@@ -50,6 +50,17 @@ the different events of the system, the model becomes probabilistic. The file
 
 <img src="./plot-brtp.png">
 
+## Unbounded re-transmission protocol
+
+The file `b-retrans-5-no-retry.b` presents a version of the transmission protocol discussed previously, where there are no limits for the number of retries.
+
+<img src="./plot-urtp-1.png">
+
+<img src="./plot-urtp-2.png">
+
+<img src="./plot-urtp-3.png">
+
+<img src="./plot-urtp-4.png">
 
 ## References
 [1]  Aouadhi, M.A., Delahaye, B., Lanoix, A.: A Fully Probabilistic Extension
