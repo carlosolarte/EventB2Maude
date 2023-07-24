@@ -52,9 +52,11 @@ the different events of the system, the model becomes probabilistic. The file
 
 ## Unbounded re-transmission protocol
 
-The file `b-retrans-5-no-retry.b` presents a version of the transmission protocol discussed previously, where there are no limits for the number of retries.
+The file `b-retrans-5-no-retry.b` presents a alternative version of the re-transmission protocol discussed previously, where there are no limits for the number of retries. Consequently, the sender will try to send the file until perform the whole transmission. The file `results.odt` reports the expected value of the number of sends that are necessary to complete the transmission depending upon different probabilities for the ocurrence of a failure.
 
 <img src="./plot-urtp-1.png">
+
+Additionally, it is reported the expected value of the number of times that was necessary to re-send a package, the expected value of the rate between re-sends and total sends and the expected value of the rate between total sends and size of the file. This last measure stands for the times that in average a package must be sent.
 
 <img src="./plot-urtp-2.png">
 
