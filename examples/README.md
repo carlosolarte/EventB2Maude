@@ -92,6 +92,17 @@ probability of failure of the channel is higher:
 
 <img src="./plot-urtp-4.png">
 
+## Non probabilistic models
+
+Some other example include non-probabilistic models from the Event-B book [4].
+Those models become probabilistic by assigning the same weight to all the
+events. These models include: 
+ * Controlling cars on a bridge (Chapter 2)
+ * A mechanical press controller (Chapter 3)
+ * A simple file transfer protocol (Chapter 4)
+ * A Bounded re-transmission protocol (Chapter 6)
+ * Development of a concurrent program (Chapter 7)
+
 ## References
 [1]  Aouadhi, M.A., Delahaye, B., Lanoix, A.: A Fully Probabilistic Extension
 of Event-B. Research report, LINA-University of Nantes (Jan 2016).
