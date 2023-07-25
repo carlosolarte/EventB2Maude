@@ -29,7 +29,7 @@ simulation results, including:
 - An emergency brake system.
 - A P2P protocol.
 - Different variants of a bounded retransmission protocol. 
-- Models in the Chapters 2 (*Controlling cars on a bridge*), 3 (*A mechanical
+- Models in Chapters 2 (*Controlling cars on a bridge*), 3 (*A mechanical
   press controller*), 4 (*A simple file transfer protocol*), 6 (*Bounded
   re-transmission protocol*) and 7 (*Development of a concurrent program*) in
   the Event-B book [5]. 
