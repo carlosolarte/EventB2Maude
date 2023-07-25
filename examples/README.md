@@ -3,18 +3,21 @@
 ## About simulations
 
 The experiments reported here were performed on a Dell 3430 with 64GB RAM and
-6-Core Intel Xeon 4500MHz.  PVeStA was executed with 10 Java processes, using
-as parameter alpha=0.01. File `results.odt` contains a sheet with the results
-for each system.
+6-Core Intel Xeon 4500MHz. File `results.odt` contains several experiments for
+the case studies. 
 
 ## Gear System
 
 The file `gear-system.b` contains the probabilistic model of the controller for
-a landing gear system presented in [1]. The property `doors=open` returns 0.0
-(i.e., the doors of the system are always closed after the end of the sequences). 
-The probability of ending the sequence of actions with the gear retracted (property
-`gear=retracted`) is 0.49. This is explained by the fact that the event `pcmd`
-may change the value of the handle to up and down with equal probability.
+a landing gear system presented in [1]. The experiment allows for answering the
+following questions:
+* What is the probability of ending the maneuver with the doors open (property
+  `doors=open`)? The The answer is 0.0, i.e., the doors of the system are
+  always closed after the end of the sequences.
+* What is the probability of ending the maneuver with the gear retracted
+  (property `gear=retracted`)? The answer is 0.49. This is explained by the
+  fact that the event `pcmd` may change the value of the handle to up and down
+  with equal probability.
 
 ## Brake System
 
@@ -27,10 +30,13 @@ The file `p2p-protocol.b` presents an alternative model to the one reported in
 1..K -> {emp, ok, download}` where `N` is the number of clients and `K` is the
 number of blocks, here the file is a function `0.. N*K-1 -> {emp, ok,
 download}`. Consistently, `i -> S` represents that the block `i/N` of the
-client `i mod N` is currently in state `S`. The file `results.odt` reports the
-expected number of times a block needs to be (re)transmitted (due to failures)
-for different values of `N` and `K`. The plots below show the expected value
-for the number of blocks transmitted.
+client `i mod N` is currently in state `S`. 
+
+The key property in this system is to estimate the total number of blocks that
+need to be transmitted in order to complete the download in all the clients.
+The file `results.odt` reports the expected number of times a block needs to be
+(re)transmitted (due to failures) for different values of `N` and `K`. The
+plots below show the expected value for the number of blocks transmitted.
 
 <img src="./plot-p2p.png">
 
@@ -44,19 +50,41 @@ Event-B in [4, Chapter 6]. This model is not probabilistic but the fifth
 refinement introduces events for changing the state of the activation bits,
 thus simulating failures. After a number `MAX` of retries, the sender and the
 receiver end the protocol in state `failure`. By assigning the same weight to
-the different events of the system, the model becomes probabilistic. The file
-`results.odt` reports the expected probability of ending the protocol in state
-`success` for different values of `MAX`. 
+the different events of the system, the model becomes probabilistic. 
+
+The relevant property here is to determine the probability of successfully
+completing the protocol or, alternatively, estimate the number of retries that
+guarantee that the file is transmitted with a reasonable probability of
+success. The file `results.odt` reports the expected probability of ending the
+protocol in state `success` for different values of `MAX`. The simulations show
+that 26 retries are enough to complete the protocol with a probability higher
+than 0.94 (for the given size of files). 
 
 <img src="./plot-brtp.png">
 
 ## Unbounded re-transmission protocol
 
-The file `b-retrans-5-no-retry.b` presents a alternative version of the re-transmission protocol discussed previously, where there are no limits for the number of retries. Consequently, the sender will try to send the file until perform the whole transmission. The file `results.odt` reports the expected value of the number of sends that are necessary to complete the transmission depending upon different probabilities for the ocurrence of a failure.
+The file `b-retrans-5-no-retry.b` presents a alternative version of the
+re-transmission protocol discussed previously, where there are no limits for
+the number of retries. Consequently, the sender will try to send the file until
+the protocol is completed. 
+
+The property of interest here is to estimate the number of blocks that need to
+be (re)transmitted before ending the protocol. The file `results.odt` reports
+the expected value of the number of blocks that need to be sent to complete the
+transmission depending on the reliability of the communication channel (by
+modifying the weight of the events modeling the failure). 
 
 <img src="./plot-urtp-1.png">
 
-Additionally, it is reported the expected value of the number of times that was necessary to re-send a package, the expected value of the rate between re-sends and total sends and the expected value of the rate between total sends and size of the file. This last measure stands for the times that in average a package must be sent.
+Additionally, it is reported the expected value of the number of times that was
+necessary to re-send a package, the expected value of the rate between re-sends
+and total sends and the expected value of the rate between total sends and the
+size of the file. This last measure stands for the times that in average a
+package must be sent. Note that when the probability of failure of the channel
+is fixed, the ratio between the total number of blocks transmitted and the
+number of retries is constant. Of course, such a ratio increases when the
+probability of failure of the channel is higher: 
 
 <img src="./plot-urtp-2.png">
 
