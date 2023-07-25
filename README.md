@@ -33,6 +33,9 @@ simulation results, including:
   press controller*), 4 (*A simple file transfer protocol*), 6 (*Bounded
   re-transmission protocol*) and 7 (*Development of a concurrent program*) in
   the Event-B book [5]. 
+- A model of a network of agents that agree (positive weight) and disagree
+  (negative weight) on a given subject and finding the probability of reaching
+  a consensus. 
 
 See the references in [examples](./examples) for further details. 
 
