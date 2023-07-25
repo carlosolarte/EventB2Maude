@@ -463,9 +463,11 @@ fmod EB-TYPE is
 
    op union : EBType EBType -> EBType .
    eq union(val(S), val(S')) = val(union(S, S')) .
+   eq union(val(R), val(R')) = val(union(R, R')) .
 
    op intersection : EBType EBType -> EBType .
    eq intersection(val(S), val(S')) = val(intersection(S, S')) .
+   eq intersection(val(R), val(R')) = val(intersection(R, R')) .
 
    op _in_ : EBType EBType -> EBType .
    eq val(e) in  val(S)= val(elt(e in S)) .
