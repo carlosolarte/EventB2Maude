@@ -8,9 +8,9 @@ the case studies.
 
 ## Gear System
 
-The file `gear-system.b` contains the probabilistic model of the controller for
-a landing gear system presented in [1]. The experiment allows for answering the
-following questions:
+(Directory `mechanical-systems`). The file `gear-system.b` contains the
+probabilistic model of the controller for a landing gear system presented in
+[1]. The experiment allows for answering the following questions:
 * What is the probability of ending the maneuver with the doors open (property
   `doors=open`)? The The answer is 0.0, i.e., the doors of the system are
   always closed after the end of the sequences.
@@ -21,16 +21,17 @@ following questions:
 
 ## Brake System
 
-The emergency brake system modeled in [2] can be found in `brake-system.b`.
+(Directory `mechanical-systems`).The emergency brake system modeled in [2] can
+be found in `brake-system.b`.
 
 ## P2P Protocol
 
-The file `p2p-protocol.b` presents an alternative model to the one reported in
-[3]. Instead of representing the file to be sent as  a matrix of type `1..N x
-1..K -> {emp, ok, download}` where `N` is the number of clients and `K` is the
-number of blocks, here the file is a function `0.. N*K-1 -> {emp, ok,
-download}`. Consistently, `i -> S` represents that the block `i/N` of the
-client `i mod N` is currently in state `S`. 
+(Directory `p2p-protocol`). The file `p2p-protocol.b` presents an alternative
+model to the one reported in [3]. Instead of representing the file to be sent
+as  a matrix of type `1..N x 1..K -> {emp, ok, download}` where `N` is the
+number of clients and `K` is the number of blocks, here the file is a function
+`0.. N*K-1 -> {emp, ok, download}`. Consistently, `i -> S` represents that the
+block `i/N` of the client `i mod N` is currently in state `S`. 
 
 The key property in this system is to estimate the total number of blocks that
 need to be transmitted in order to complete the download in all the clients.
@@ -38,19 +39,20 @@ The file `results.odt` reports the expected number of times a block needs to be
 (re)transmitted (due to failures) for different values of `N` and `K`. The
 plots below show the expected value for the number of blocks transmitted.
 
-<img src="./plot-p2p.png">
+<img src="./img/plot-p2p.png">
 
-<img src="./plot-p2p-rate.png">
+<img src="./img/plot-p2p-rate.png">
 
 ## Bounded re-transmission protocol
 
-The files `b-retrans-4.b` and `b-retrans-5.b` present, respectively, the fourth
-and fifth refinements of the bounded re-transmission protocol modeled in
-Event-B in [4, Chapter 6]. This model is not probabilistic but the fifth
-refinement introduces events for changing the state of the activation bits,
-thus simulating failures. After a number `MAX` of retries, the sender and the
-receiver end the protocol in state `failure`. By assigning the same weight to
-the different events of the system, the model becomes probabilistic. 
+(Directory `bounded-retransmission-protocol`). The files `b-retrans-4.b` and
+`b-retrans-5.b` present, respectively, the fourth and fifth refinements of the
+bounded re-transmission protocol modeled in Event-B in [4, Chapter 6]. This
+model is not probabilistic but the fifth refinement introduces events for
+changing the state of the activation bits, thus simulating failures. After a
+number `MAX` of retries, the sender and the receiver end the protocol in state
+`failure`. By assigning the same weight to the different events of the system,
+the model becomes probabilistic. 
 
 The relevant property here is to determine the probability of successfully
 completing the protocol or, alternatively, estimate the number of retries that
@@ -60,9 +62,9 @@ protocol in state `success` for different values of `MAX`. The simulations show
 that 26 retries are enough to complete the protocol with a probability higher
 than 0.94 (for the given size of files). 
 
-<img src="./plot-brtp.png">
+<img src="./img/plot-brtp.png">
 
-## Unbounded re-transmission protocol
+### Unbounded re-transmission protocol
 
 The file `b-retrans-5-no-retry.b` presents a alternative version of the
 re-transmission protocol discussed previously, where there are no limits for
@@ -75,7 +77,7 @@ the expected value of the number of blocks that need to be sent to complete the
 transmission depending on the reliability of the communication channel (by
 modifying the weight of the events modeling the failure). 
 
-<img src="./plot-urtp-1.png">
+<img src="./img/plot-urtp-1.png">
 
 Additionally, it is reported the expected value of the number of times that was
 necessary to re-send a package, the expected value of the rate between re-sends
@@ -86,21 +88,44 @@ is fixed, the ratio between the total number of blocks transmitted and the
 number of retries is constant. Of course, such a ratio increases when the
 probability of failure of the channel is higher: 
 
-<img src="./plot-urtp-2.png">
+<img src="./img/plot-urtp-2.png">
 
-<img src="./plot-urtp-3.png">
+<img src="./img/plot-urtp-3.png">
 
-<img src="./plot-urtp-4.png">
+<img src="./img/plot-urtp-4.png">
+
+## Local Balance Property in Signed Frames
+
+(Directory `consensus-PNL`). Positive negative logic or PNL is a modal logic
+introduced in [5, 6], used to define properties over a specific class of
+network represented as signed frames. In [5], an extension of PNL is proposed
+where the modalities $\langle \bigwedge\mkern-12mu\bigwedge + \rangle$ and
+$\langle \bigwedge\mkern-12mu\bigwedge - \rangle$ randomly add positive and
+negative links to the network. To represent this behavior, an Event-B model
+that specifies an initial signed frame and non-deterministically adds positive
+and negative links until reaching a complete graph, was implemented in the
+files `PNL1.b`, `PNL2.b` and `PNL3.b`. The initial signed frames for each one
+of the 3 models can be seen in the following image: 
+
+<img src="./img/pnl-experiments.png"> 
+
+The main property that wants to be verified is whether or not the final state
+of the system satisfies the local balance property (Definition 2.5 in [5]) over
+signed frames. The obtained results for each one of the experiments correspond
+to the expected probability of reaching a terminating state, i.e. a complete
+graph, with the local balance property, given the initial configuration of the
+three experiments. These results can be found in the `results.odt` file.
+
 
 ## Non probabilistic models
 
-Some other example include non-probabilistic models from the Event-B book [4].
-Those models become probabilistic by assigning the same weight to all the
-events. These models include: 
+(Directory `B-book-models`). Some other example include non-probabilistic
+models from the Event-B book [4]. Those models become probabilistic by
+assigning the same weight to all the events. These models include: 
  * Controlling cars on a bridge (Chapter 2)
  * A mechanical press controller (Chapter 3)
  * A simple file transfer protocol (Chapter 4)
- * A Bounded re-transmission protocol (Chapter 6)
+ * A Bounded re-transmission protocol (Chapter 6) (see directory `bounded-retransmission-protocol`)
  * Development of a concurrent program (Chapter 7)
 
 ## References
@@ -115,4 +140,10 @@ reasoning within Event-B. Softw. Syst. Model. 18(3), 1953–1984 (2019)
 
 [4] Jean-Raymond Abrial: Modeling in Event-B - System and Software Engineering.
 Cambridge University Press (2010)
+
+[5] M. Young Pedersen, S. Smets, T. Ågotnes: Modal Logics and Group Polariza-
+tion. Journal of Logic and Computation (2021).
+
+[6] Z. Xiong, T. Ågotnes: On the logic of balance in social networks. Journal of
+Logic, Language and Information (2020).
 
