@@ -1,0 +1,11 @@
+
+v1 () =  s.rval( "prop(1, SYS )")  ;
+v2 () =  s.rval( "prop(2, SYS )")  ;
+v3 () =  s.rval( "prop(3, SYS )")  ;
+v4 () =  s.rval( "prop(4, SYS )")  ;
+
+eval E[ # v1 ( ) ] ;
+eval E[ # v2 ( ) ] ;
+eval E[ # v3 ( ) ] ;
+eval E[ # v4 ( ) ] ;
+

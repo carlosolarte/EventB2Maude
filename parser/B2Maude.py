@@ -152,10 +152,10 @@ class BMaude(EventBListener):
   var $$lbdS{lid} : EBSet . 
   op $$map{lid}   : EBType Configuration -> EBType .
   eq $$map{lid}(val( (empty).EBSet), C:Configuration) = val( (empty).EBSet) .
-  eq $$map{lid}(val( (elt($$lbdn{lid}), $$lbdS{lid})), ({self.ruleWrapper('empty')})) =
-   union(({fexp}), $$map{lid}(val($$lbdS{lid}),{self.ruleWrapper('empty')})) . 
+  eq $$map{lid}(val( (elt($$lbdn{lid}), $$lbdS{lid})), ({self.ruleWrapper('noevent')})) =
+   union(({fexp}), $$map{lid}(val($$lbdS{lid}),{self.ruleWrapper('noevent')})) . 
             '''))
-            return f''' $$map{lid}(({eset}), ({self.ruleWrapper('empty')}))'''
+            return f''' $$map{lid}(({eset}), ({self.ruleWrapper('noevent')}))'''
 
         if type(ctx) == EventBParser.FilterExprContext:
             _id = ctx.ID().getText()
@@ -175,13 +175,13 @@ class BMaude(EventBListener):
   var $$lbdS{lid} : EBSet . 
   op $$filter{lid}   : EBType Configuration -> EBType .
   eq $$filter{lid}(val( (empty).EBSet), C:Configuration) = val( (empty).EBSet) .
-  eq $$filter{lid}(val( (elt($$lbdn{lid}), $$lbdS{lid})), ({self.ruleWrapper('empty')})) =
+  eq $$filter{lid}(val( (elt($$lbdn{lid}), $$lbdS{lid})), ({self.ruleWrapper('noevent')})) =
      if ebset2bool({fexp}) 
-     then union(val(elt($$lbdn{lid})), $$filter{lid}(val($$lbdS{lid}),{self.ruleWrapper('empty')}))
-     else $$filter{lid}(val($$lbdS{lid}),{self.ruleWrapper('empty')})
+     then union(val(elt($$lbdn{lid})), $$filter{lid}(val($$lbdS{lid}),{self.ruleWrapper('noevent')}))
+     else $$filter{lid}(val($$lbdS{lid}),{self.ruleWrapper('noevent')})
      fi .
               '''))
-            return f''' $$filter{lid}(({eset}), ({self.ruleWrapper('empty')}))'''
+            return f''' $$filter{lid}(({eset}), ({self.ruleWrapper('noevent')}))'''
 
             
 
@@ -662,6 +662,9 @@ search initState =>* SYS such that SYS |= prop(1) .
 
 --- Model Checking 
 red modelCheck(initState, True) .
+
+--- Umaudemc for stochastic model checking
+umaudemc scheck file.maude initState formula.quatex
 
 ''')
 

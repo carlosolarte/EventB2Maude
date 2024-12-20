@@ -76,4 +76,5 @@ MACHINE P2P
 END
 
 PROPERTIES
- n # Checking the number of steps #
+ n; # Checking the number of steps #
+ done # When the protocol ends

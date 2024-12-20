@@ -64,7 +64,7 @@ ceq [sent] :
     fi
 if      $$WEIGHT := ebset2nat((($$N) * ($$K)) - (card(ran-res($$file, val( ( elt("sending") ) ))))) 
      /\ $$GUARD  := ebset2bool(val(elt(true)))  and  is-empty( ( $$filter1((dom(ran-res($$file, val( ( elt("emp") ) )))), (< $$CNAME : Context | sets : ($$Sets), constants : ('N |-> $$N , 'K |-> $$K) > 
-  < $$MNAME : Machine | variables : ('file |-> $$file , 'n |-> $$n , 'done |-> $$done), events : empty > ))) ) == false 
+  < $$MNAME : Machine | variables : ('file |-> $$file , 'n |-> $$n , 'done |-> $$done), events : noevent > ))) ) == false 
 .
 
 --- Change of state for event sent
@@ -74,7 +74,7 @@ rl [sent] :
     =>
       < $$CNAME : Context | sets : ($$Sets), constants : ('N |-> $$N , 'K |-> $$K) > 
     < $$MNAME : Machine | variables : ('done |-> $$done , 'file |-> overr($$file, val( ( choice( $$filter1((dom(ran-res($$file, val( ( elt("emp") ) )))), (< $$CNAME : Context | sets : ($$Sets), constants : ('N |-> $$N , 'K |-> $$K) > 
-  < $$MNAME : Machine | variables : ('file |-> $$file , 'n |-> $$n , 'done |-> $$done), events : empty > ))) |-> elt("sending") ) )) , 'n |-> ($$n) + (val(elt(1)))) , events : ev('sent, running) > 
+  < $$MNAME : Machine | variables : ('file |-> $$file , 'n |-> $$n , 'done |-> $$done), events : noevent > ))) |-> elt("sending") ) )) , 'n |-> ($$n) + (val(elt(1)))) , events : ev('sent, running) > 
     . 
 ----------------------------
 --- Event receive
@@ -170,13 +170,13 @@ var $$lbdS1 : EBSet .
 op $$filter1   : EBType Configuration -> EBType .
 eq $$filter1(val( (empty).EBSet), C:Configuration) = val( (empty).EBSet) .
 eq $$filter1(val( (elt($$lbdn1), $$lbdS1)), (< $$CNAME : Context | sets : ($$Sets), constants : ('N |-> $$N , 'K |-> $$K) > 
-  < $$MNAME : Machine | variables : ('file |-> $$file , 'n |-> $$n , 'done |-> $$done), events : empty > )) =
+  < $$MNAME : Machine | variables : ('file |-> $$file , 'n |-> $$n , 'done |-> $$done), events : noevent > )) =
    if ebset2bool( ( ( ( (val(elt($$lbdn1))) rem ($$N) )) nin ( $$map2((dom(ran-res($$file, val( ( elt("sending") ) )))), (< $$CNAME : Context | sets : ($$Sets), constants : ('N |-> $$N , 'K |-> $$K) > 
-  < $$MNAME : Machine | variables : ('file |-> $$file , 'n |-> $$n , 'done |-> $$done), events : empty > ))) )) 
+  < $$MNAME : Machine | variables : ('file |-> $$file , 'n |-> $$n , 'done |-> $$done), events : noevent > ))) )) 
    then union(val(elt($$lbdn1)), $$filter1(val($$lbdS1),< $$CNAME : Context | sets : ($$Sets), constants : ('N |-> $$N , 'K |-> $$K) > 
-  < $$MNAME : Machine | variables : ('file |-> $$file , 'n |-> $$n , 'done |-> $$done), events : empty > ))
+  < $$MNAME : Machine | variables : ('file |-> $$file , 'n |-> $$n , 'done |-> $$done), events : noevent > ))
    else $$filter1(val($$lbdS1),< $$CNAME : Context | sets : ($$Sets), constants : ('N |-> $$N , 'K |-> $$K) > 
-  < $$MNAME : Machine | variables : ('file |-> $$file , 'n |-> $$n , 'done |-> $$done), events : empty > )
+  < $$MNAME : Machine | variables : ('file |-> $$file , 'n |-> $$n , 'done |-> $$done), events : noevent > )
    fi .
 
 var $$lbd2  : EBType .
@@ -185,9 +185,9 @@ var $$lbdS2 : EBSet .
 op $$map2   : EBType Configuration -> EBType .
 eq $$map2(val( (empty).EBSet), C:Configuration) = val( (empty).EBSet) .
 eq $$map2(val( (elt($$lbdn2), $$lbdS2)), (< $$CNAME : Context | sets : ($$Sets), constants : ('N |-> $$N , 'K |-> $$K) > 
-  < $$MNAME : Machine | variables : ('file |-> $$file , 'n |-> $$n , 'done |-> $$done), events : empty > )) =
+  < $$MNAME : Machine | variables : ('file |-> $$file , 'n |-> $$n , 'done |-> $$done), events : noevent > )) =
  union(((val(elt($$lbdn2))) rem ($$N)), $$map2(val($$lbdS2),< $$CNAME : Context | sets : ($$Sets), constants : ('N |-> $$N , 'K |-> $$K) > 
-  < $$MNAME : Machine | variables : ('file |-> $$file , 'n |-> $$n , 'done |-> $$done), events : empty > )) . 
+  < $$MNAME : Machine | variables : ('file |-> $$file , 'n |-> $$n , 'done |-> $$done), events : noevent > )) . 
 
 --- ---------------------------
 
@@ -210,6 +210,9 @@ eq $$map2(val( (elt($$lbdn2), $$lbdS2)), (< $$CNAME : Context | sets : ($$Sets),
 eq prop(1,   < $$CNAME : Context | sets : ($$Sets), constants : ('N |-> $$N , 'K |-> $$K) >  < $$MNAME : Machine | variables : ('file |-> $$file , 'n |-> $$n , 'done |-> $$done), events : $$SEv > ) 
   = toFloat(($$n)) .
 
+eq prop(2,   < $$CNAME : Context | sets : ($$Sets), constants : ('N |-> $$N , 'K |-> $$K) >  < $$MNAME : Machine | variables : ('file |-> $$file , 'n |-> $$n , 'done |-> $$done), events : $$SEv > ) 
+  = toFloat(($$done)) .
+
 
   ---- Defining the initial state
   op initState : -> Configuration .
@@ -228,4 +231,7 @@ search initState =>* SYS such that SYS |= prop(1) .
 
 --- Model Checking 
 red modelCheck(initState, True) .
+
+--- Umaudemc for stochastic model checking
+umaudemc scheck file.maude initState formula.quatex
 

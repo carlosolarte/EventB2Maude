@@ -197,3 +197,6 @@ search initState =>* SYS such that SYS |= prop(1) .
 --- Model Checking 
 red modelCheck(initState, True) .
 
+--- Umaudemc for stochastic model checking
+umaudemc scheck file.maude initState formula.quatex
+

@@ -1,0 +1,7 @@
+v1 () =  
+    if s.rval( "prop(2, SYS )")
+    then s.rval( "prop(1, SYS )")
+    else # v1 () 
+    fi ;
+
+eval E[  v1 ( )  ] ;
