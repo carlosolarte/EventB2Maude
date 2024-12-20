@@ -103,13 +103,16 @@ class BMaude(EventBListener):
         if type(ctx) == EventBParser.SetExprContext:
             sym = ""
             if ctx.UNION(): return binsymbol("union", infix=False)
+            if ctx.DIFFERENCE(): return binsymbol(" / ")
             if ctx.INTERSECTION(): return binsymbol("intersection", infix=False)
             if ctx.IN(): return binsymbol(" in ")
             if ctx.NOTIN(): return binsymbol(" nin ")
 
         # Boolean 
         if type(ctx) == EventBParser.BoolExprContext:
-            return binsymbol( " andb " if ctx.CONJ() else " orb ")
+            if ctx.CONJ(): return binsymbol( " andb ")
+            if ctx.DISJ(): return binsymbol( " orb ")
+            if ctx.IMPL(): return binsymbol( " impb ")
 
         # Sets and relations
         if type(ctx) == EventBParser.DomRanCardExprContext:
@@ -147,12 +150,12 @@ class BMaude(EventBListener):
   var $$lbd{lid}  : EBType .
   var $$lbdn{lid} : Nat . 
   var $$lbdS{lid} : EBSet . 
-  op $$map{lid}   : EBType Config -> EBType .
-  eq $$map{lid}(val( (empty).EBSet), C:Config) = val( (empty).EBSet) .
-  eq $$map{lid}(val( (elt($$lbdn{lid}), $$lbdS{lid})), ({self.ruleWrapper()})) =
-   union(({fexp}), $$map{lid}(val($$lbdS{lid}),{self.ruleWrapper()})) . 
+  op $$map{lid}   : EBType Configuration -> EBType .
+  eq $$map{lid}(val( (empty).EBSet), C:Configuration) = val( (empty).EBSet) .
+  eq $$map{lid}(val( (elt($$lbdn{lid}), $$lbdS{lid})), ({self.ruleWrapper('empty')})) =
+   union(({fexp}), $$map{lid}(val($$lbdS{lid}),{self.ruleWrapper('empty')})) . 
             '''))
-            return f' $$map{lid}(({eset}), ({self.ruleWrapper()}))'
+            return f''' $$map{lid}(({eset}), ({self.ruleWrapper('empty')}))'''
 
         if type(ctx) == EventBParser.FilterExprContext:
             _id = ctx.ID().getText()
@@ -170,15 +173,15 @@ class BMaude(EventBListener):
   var $$lbd{lid}  : EBType . 
   var $$lbdn{lid} : Nat . 
   var $$lbdS{lid} : EBSet . 
-  op $$filter{lid}   : EBType Config -> EBType .
-  eq $$filter{lid}(val( (empty).EBSet), C:Config) = val( (empty).EBSet) .
-  eq $$filter{lid}(val( (elt($$lbdn{lid}), $$lbdS{lid})), ({self.ruleWrapper()})) =
+  op $$filter{lid}   : EBType Configuration -> EBType .
+  eq $$filter{lid}(val( (empty).EBSet), C:Configuration) = val( (empty).EBSet) .
+  eq $$filter{lid}(val( (elt($$lbdn{lid}), $$lbdS{lid})), ({self.ruleWrapper('empty')})) =
      if ebset2bool({fexp}) 
-     then union(val(elt($$lbdn{lid})), $$filter{lid}(val($$lbdS{lid}),{self.ruleWrapper()}))
-     else $$filter{lid}(val($$lbdS{lid}),{self.ruleWrapper()})
+     then union(val(elt($$lbdn{lid})), $$filter{lid}(val($$lbdS{lid}),{self.ruleWrapper('empty')}))
+     else $$filter{lid}(val($$lbdS{lid}),{self.ruleWrapper('empty')})
      fi .
               '''))
-            return f' $$filter{lid}(({eset}), ({self.ruleWrapper()}))'
+            return f''' $$filter{lid}(({eset}), ({self.ruleWrapper('empty')}))'''
 
             
 
@@ -282,9 +285,7 @@ class BMaude(EventBListener):
                 --- Context: {self._ctxname}
                 --- Machine: {self._mchname}
 
-                --- MAX-STEPS for the simulation: {MAXSTEP}
-
-                load ../m-theory/ebmachine .
+                load ../../b2m-theory/ebmachine .
                 ''')
         self._ctxname = ctx.context().ID().getText()
         self._mchname = ctx.machine().ID()[0].getText()
@@ -302,7 +303,7 @@ class BMaude(EventBListener):
 
         s = textwrap.dedent(f'''
                 mod {ctx.ID()} is
-                  inc EBMACHINE * (sort Configuration to Config) .
+                  inc EBMACHINE .
 
                   --- Context: Sets and constants
                   ''')
@@ -398,7 +399,7 @@ class BMaude(EventBListener):
         # Variables for implementing the machine
         s+= textwrap.dedent( f''' 
          vars $$CNAME $$MNAME : Qid .
-         vars $$LEv $$LEv' : LEvent .
+         vars $$SEv $$SEv' : SEvent .
          var  $$Sets : Map{{Qid, EBSet}} .
          var  $$Cte  : Map{{Qid, EBType}} .
          var  $$WEIGHT : Nat .
@@ -450,16 +451,16 @@ class BMaude(EventBListener):
         '''
         Returning the Maude's variables used to define B-constants 
         '''
-        return f'''  < $$CNAME : Context | sets: ($$Sets), constants: ({self.constantsCtx()}) > '''
+        return f'''  < $$CNAME : Context | sets : ($$Sets), constants : ({self.constantsCtx()}) > '''
                                     
     
-    def ruleWrapper (self):
+    def ruleWrapper (self, events):
         '''
         Returning the usual context for equation and rules. (constants + variables)
         '''
         return textwrap.dedent(
         f''' {self.contextWrapper()}
-       < $$MNAME : Machine | variables: ({self.variablesCtx()}) > ''')
+       < $$MNAME : Machine | variables : ({self.variablesCtx()}), events : {events} > ''')
 
     def parseAnyVars(self,ctx):
         '''Returns a dictionary indexed by the id of the parameters and values that it can take
@@ -529,7 +530,7 @@ class BMaude(EventBListener):
         return modvar
 
 
-    def newState(self):
+    def newState(self, events):
         '''Returning the Maude's context with the new state of the variables'''
 
         # Variables not modified by the event
@@ -538,7 +539,7 @@ class BMaude(EventBListener):
         # Modified variables
         modified = [ f"'{_id} |-> {_expr}" for _id,_expr in self._modvars.items() ]
 
-        return f'< $$MNAME : Machine | variables: ({" , ".join(unmodified + modified)}) > '''
+        return f'< $$MNAME : Machine | variables : ({" , ".join(unmodified + modified)}) , events : {events} > '''
 
 
     # Enter a parse tree produced by EventBParser#eventdecl.
@@ -578,31 +579,25 @@ class BMaude(EventBListener):
         f''' 
   --- Activation of the Event {evtid}
   ceq [{evtid}] :
-      {self.ruleWrapper()}
-      < events  : Events  | state: ($$LEv ev('{evtid}, unknown) $$LEv') >
+      {self.ruleWrapper('( ( $$SEv, ev(\'' + f'{evtid}, unknown) ) )')}
       =
-      {self.ruleWrapper()}
       if $$WEIGHT > 0 and $$GUARD == true
       then 
-      < events  : Events  | state: ($$LEv ev('{evtid}, enable($$WEIGHT)) $$LEv') >
+        {self.ruleWrapper('(($$SEv, ev(\'' + f'{evtid}, enable($$WEIGHT))))')}
       else
-      < events  : Events  | state: ($$LEv ev('{evtid}, blocked) $$LEv') >
+        {self.ruleWrapper('(($$SEv, ev(\'' + f'{evtid}, blocked)))')}
       fi
   if      $$WEIGHT := {vw} 
-       /\ $$GUARD  := {vg} {anycond}
+       /\\ $$GUARD  := {vg} {anycond}
   .
   
   --- Change of state for event {evtid}
   rl [{evtid}] : 
-      {self.ruleWrapper()}
-      < events  : Events  | state: ( ev('{evtid}, execute) ) >
+      {self.ruleWrapper('ev(\'' + f'{evtid}, execute)')}
       =>
       {self.contextWrapper()}
-      {self.newState()}
-      < events : Events | state: init-events >
-      .
-
-''')
+      {self.newState('ev(\'' + f'{evtid}, running)')}
+      . ''')
 
         self._output.write(s)
 
@@ -621,13 +616,13 @@ class BMaude(EventBListener):
 
 
         # Adding the initialization of the state of the events
-        levent = ' '.join([ f'ev({id}, unknown)' for id in self._eventid])
+        levent = ','.join([ f'ev({id}, unknown)' for id in self._eventid])
 
         # Properties
         sprop = ""
         for n,v in self._props.items():
             sprop +=  textwrap.dedent(f'''
-              eq val({n}, Conf < $$MNAME : Machine | variables: ({self.variablesCtx()}) > ) 
+              eq prop({n}, {self.contextWrapper()} < $$MNAME : Machine | variables : ({self.variablesCtx()}), events : $$SEv > ) 
                 = toFloat(({v})) .
                 ''')
             
@@ -636,58 +631,37 @@ class BMaude(EventBListener):
   --- Initialization of events
   eq init-events = {levent} .
   
-  --- Rule for choosing the next event to be executed
-  --- It stops when the system is in a deadlock or the limit 
-  --- MAX-STEPS is reached. 
-  var nsteps : Nat .
-  crl [next-event] :
-     < events : Events | state: ($$LEv) > 
-     steps(nsteps)
-     =>
-     < events : Events | state: choose-event($$LEv') >
-     steps(nsteps + 1)
-  if
-        nsteps <= MAX-STEPS
-    /\  not-unknown($$LEv) --- all the guards have been checked
-    /\  one-firable($$LEv) --- one of the events is firable
-    /\  $$LEv' := accumulate(enabled-events($$LEv)) --- extract the enabled events and accumulate
-  .
   
-  --- --------------------------
-  --- PVesTa -------------------
-  --- --------------------------
-  var Conf : Config .
-  op tick : Config -> Config .
-  eq tick( Conf )  = Conf .
-  op MAX-STEPS : -> Nat .
-  eq MAX-STEPS = {MAXSTEP} .
-  op steps : Nat -> Config .
+  --- ------------
+  --- Properties  
+  --- ------------
+  var SYS : Configuration .
   
-  --- Observable properties
-  op val : Nat Config -> Float .
-  
-  --- Simulation steps
-  eq val(0, Conf steps(N:Nat) ) = float(N:Nat) .
   
   --- This definition depends on the system
   --- Change 1.0 with, for instance,   float(ebset2nat($$n)) 
-  --- eq val(1, Conf < $$MNAME : Machine | variables: ({self.variablesCtx()}) > ) = 1.0 . 
+  --- eq val(1, Conf < $$MNAME : Machine | variables: ({self.variablesCtx()}), events : $$SEv > ) = 1.0 . 
   --- Properties can be also defined in the .b file with a section PROPERTIES
   
   {sprop}
 
   ---- Defining the initial state
-  op initState : Nat -> Config .
-  op initState : -> Config .
-  rl initState => initState(counter) .
-
-  eq initState(N:Nat) = init-machine('{self._ctxname}, '{self._mchname}) steps(0)  .
+  op initState : -> Configuration .
+  eq initState = init-machine('{self._ctxname}, '{self._mchname}) .
 endm
 
 eof
 
 --- example of use
-rew [1] initState .
+
+--- One step of rewriting
+rew [1] initState . 
+
+--- Search for all reachable states satisfying prop(1)
+search initState =>* SYS such that SYS |= prop(1) .
+
+--- Model Checking 
+red modelCheck(initState, True) .
 
 ''')
 

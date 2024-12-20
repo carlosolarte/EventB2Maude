@@ -73,4 +73,6 @@ END
 
 PROPERTIES
  brake = applied ;
- wear
+ wear;
+ wear <= MAXWEAR # Invariant 
+

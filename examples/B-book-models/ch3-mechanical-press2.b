@@ -1,5 +1,5 @@
 # 2nd Model Mechanical-press system #
-# Chapter 2 Abrial's book #
+# Chapter 3 Abrial's book #
 #
 CONTEXT ctxMechanicalPress
 SETS 

@@ -128,5 +128,7 @@ MACHINE CarBridgeSystem
 
 END
 
+# Invariants of this machine
 PROPERTIES
- a >= 0 
+    (mltl = green) -> ( (a + b < d) /\ c = 0)
+ 

@@ -76,4 +76,4 @@ MACHINE P2P
 END
 
 PROPERTIES
- n
+ n # Checking the number of steps #

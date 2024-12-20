@@ -1,10 +1,15 @@
 # Case studies
 
-## About simulations
+## Properties 
 
-The experiments reported here were performed on a Dell 3430 with 64GB RAM and
-6-Core Intel Xeon 4500MHz. File `results.odt` contains several experiments for
-the case studies. 
+In each case study, the section `PROPERTIES` of the Event-B files includes
+properties that can be verified. In all the cases, the invariant of the 
+machine is added to this section and it can be verified using the `search`
+command of Maude (see some examples below). 
+
+The experiments for stochastic model checking reported here were performed on a
+Dell 3430 with 64GB RAM and 6-Core Intel Xeon 4500MHz. File `results.odt`
+contains several experiments for the case studies. 
 
 ## Gear System
 
@@ -19,10 +24,36 @@ probabilistic model of the controller for a landing gear system presented in
   fact that the event `pcmd` may change the value of the handle to up and down
   with equal probability.
 
+
+The invariant of this system is `cmd <= FCMD` and the parser generates
+the following definition:
+
+```
+eq prop(4,   
+   < $$CNAME : Context | sets : ($$Sets), 
+     constants : ('FCMD |-> $$FCMD) >  
+   < $$MNAME : Machine | variables : ('handle |-> $$handle , 
+               'gear |-> $$gear , 'door |-> $$door , 
+               'cmd |-> $$cmd), events : $$SEv > ) 
+  = toFloat((($$cmd) <= ($$FCMD))) .
+```
+
+This invariant can be checked with the following command: 
+
+```
+Maude> search initState =>* SYS such that  not SYS |= prop(4) .
+search in ctxGearSystem : initState =>* SYS such that not SYS |= prop(4) = true .
+
+No solution.
+states: 338  rewrites: 13165 in 9ms cpu (11ms real) (1333569 rewrites/second)
+```
+
+The answer `No solution` means that all the reachable states satisfy the invariant. 
+
 ## Brake System
 
 (Directory `mechanical-systems`).The emergency brake system modeled in [2] can
-be found in `brake-system.b`.
+be found in `brake-system.b`. 
 
 ## P2P Protocol
 
@@ -63,6 +94,8 @@ that 26 retries are enough to complete the protocol with a probability higher
 than 0.94 (for the given size of files). 
 
 <img src="./img/plot-brtp.png">
+
+The invariant of this system is specified in the section `PROPERTIES`. 
 
 ### Unbounded re-transmission protocol
 

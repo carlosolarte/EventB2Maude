@@ -51,6 +51,7 @@ INCHOICE          : '<:' ;
 IN                : ':' ; 
 NOTIN             : '/:' ;
 UNION             : '\\s/' ; 
+DIFFERENCE        : '\\' ; 
 INTERSECTION      : '/s\\' ;
 
 // Boolean expressions
@@ -58,6 +59,7 @@ TRUE              : 'True' ;
 FALSE             : 'False' ;
 CONJ              : '/\\' ;
 DISJ              : '\\/' ;
+IMPL              : '->'  ;
 
 // Arithmetic expressions
 PLUS              : '+';
@@ -192,10 +194,10 @@ expr : val                                                              # ExprVa
        | left=expr operator=(PLUS|MINUS)               right=expr       # ArithExprPM
        | left=expr operator=(EQ | NEQ)                 right=expr       # CompExpr
        | left=expr operator=RELSYM                     right=expr       # RelExpr
-       | left=expr operator=(CONJ | DISJ)              right=expr       # BoolExpr
+       | left=expr operator=(CONJ | DISJ | IMPL)       right=expr       # BoolExpr
        | left=expr operator=(DOMRES | RANRES | OVERR)  right=expr       # RelationExpr
        | (DOM | RAN | CARD ) '(' expr ')'                               # DomRanCardExpr
-       | left=expr operator=(IN | NOTIN | UNION | INTERSECTION) 
+       | left=expr operator=(IN | NOTIN | UNION | INTERSECTION | DIFFERENCE) 
                                                       right=expr        # SetExpr
        | '{' intrange '}'                                               # IntRangeExpr
        | '{' ID '.' expr '|' expr '}'                                   # MapExpr 

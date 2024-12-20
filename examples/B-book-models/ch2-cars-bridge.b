@@ -59,11 +59,12 @@ MACHINE CarBridgeSystem
     0 < b /\
     a = 0 
   THEN
-    a := b - 1 
+    b := b - 1 
     c := c + 1
   END
 
 END
 
 PROPERTIES
- a >= 0 
+ # Invariant of this machine
+ a = 0 \/ c = 0

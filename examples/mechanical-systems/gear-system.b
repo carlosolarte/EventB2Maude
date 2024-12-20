@@ -86,4 +86,5 @@ END
 PROPERTIES
  door = open ;
  gear = extended ;
- cmd
+ gear = extended /\ door = closed ;
+ cmd <= FCMD

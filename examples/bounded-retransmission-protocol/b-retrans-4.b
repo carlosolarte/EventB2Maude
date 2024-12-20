@@ -112,4 +112,6 @@ END
 
 PROPERTIES
  stateS = success /\ stateR = success ; # both agents end in success
- stateS = failure /\ stateR = failure   # both fail 
+ stateS = failure /\ stateR = failure;   # both fail 
+ stateS = success -> stateR = success # Invariant 
+

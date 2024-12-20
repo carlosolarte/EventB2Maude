@@ -207,4 +207,5 @@ END
 
 PROPERTIES
  sst = failure /\ rst = failure   ;
- sst = success /\ rst = success 
+ sst = success /\ rst = success   ;
+ (w = True -> db = False) /\ (w = True -> ab = False) /\ (w = True -> v = False) /\ (db = True -> ab = False) /\ (db = True -> v = False) /\ (ab = True -> v = False)  # Invariant 

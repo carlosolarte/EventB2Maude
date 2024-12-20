@@ -1,0 +1,147 @@
+***(
+  Event-B machines
+  authors: Carlos Olarte, Camilo Rocha
+  file: ebmachine.maude
+
+  Definition of an Event-B machine as a mapping from variables to terms in EBType
+  and encoding the state of the events of the machine
+***)
+
+load ebcontext .
+load model-checker . 
+
+--- Definition of events 
+fmod EVENT is
+   pr QID .
+   pr NAT .
+
+   --- Events 
+   sort Event 
+   --- State of events 
+   sort EvState . 
+  ops blocked unknown execute running : -> EvState [ctor] .
+  op enable : NzNat -> EvState [ctor] . --- enable + weight 
+
+   op ev : Qid EvState -> Event  [ctor] .
+endfm
+
+
+view Event from TRIV to EVENT is
+  sort Elt to Event .
+endv
+
+omod EBMACHINE is
+  inc EBCONTEXT  .
+  inc MODEL-CHECKER . 
+
+  subsort Configuration < State .
+  pr SET{Event} * 
+    (sort Set{Event} to SEvent , sort NeSet{Event} to NeSEvent, op empty to noevent) .
+
+  pr MAP{Qid, EBType} .
+
+
+  class Machine |
+    variables : Map{Qid , EBType}, *** Machine's variables 
+    events : SEvent *** The event s
+  .
+
+
+  --- The following operators must be instantiated by the implementation
+  --- of the machine
+
+  --- Sets, constants and variables
+  --- The configuration parameter is the context with the constant of the model
+  op init-variables : Object ->  Map{Qid , EBType} .
+
+  --- Building the initial state of the machine
+  op init-machine : Qid Qid -> Configuration .
+  vars QM QC : Qid .
+  ceq init-machine(QC, QM) 
+    = 
+        CTX:Object
+        < QM : Machine | 
+            variables : init-variables(CTX:Object),
+            events : init-events
+            >
+  if CTX:Object := init-context(QC)
+  .
+
+
+   op init-events : -> SEvent . --- To be extended with the system at hand (all of them in state unknown)
+
+
+    --- ------------------------
+	vars EvS EvS' : SEvent . 
+	vars N M : Nat .
+	vars QE Q : Qid .
+    var MAPVAR : Map{Qid , EBType} . 
+    var WEIGHT : Nat .
+
+    --- ------------------------
+
+   --- Some operations on sets of event's states
+	 --- Check if none of the events are in state unknown (or in execute)
+   op not-unknown : SEvent -> Bool .
+   eq not-unknown( (EvS, ev(Q, unknown)) )   = false .
+   eq not-unknown( (EvS, ev(Q, execute)) )   = false .
+   eq not-unknown(EvS) = true [owise] .
+
+   --- Check if one of the events is firable
+   op one-firable : SEvent -> Bool .
+   eq one-firable( (EvS, ev(Q, enable(N)))) = true .
+   eq one-firable(EvS) = false [owise] .
+
+   --- A set of enabled events
+   op enabled-events : SEvent -> SEvent .
+   eq enabled-events(noevent) = noevent .
+   eq enabled-events( (ev(Q, unknown), EvS))   = enabled-events(EvS) .
+   eq enabled-events( (ev(Q, blocked), EvS))   = enabled-events(EvS) .
+   eq enabled-events( (ev(Q, execute), EvS))   = enabled-events(EvS) .
+   eq enabled-events( (ev(Q, enable(N)), EvS))   = ev(Q, enable(N)), enabled-events(EvS) .
+
+
+   --- Choosing the next event to be executed
+  crl [next-event] :
+     --- !! Note that $$handle does not match when there are choices since it goes to the Kind (not sort)
+     < QM : Machine | 
+        variables : MAPVAR,
+        events : (ev(QE, enable(WEIGHT)), EvS) >
+     =>
+     < QM : Machine | 
+        variables : MAPVAR,
+        events : ev(QE, execute) >
+  if  not-unknown(EvS) [metadata "float(WEIGHT)"] . --- all the guards have been checked
+
+
+  var P        : Float . 
+  var EBT      : EBType .
+  var SEBP     : SEBPChoice .
+  var SEBV     : SEBVChoice .
+
+  rl [choice] : choice(EBT @ P  SEBP) => EBT [metadata "P"] .
+  rl [choice] : choice(EBT ! SEBV) => EBT [metadata "1.0" ] .
+
+  --- This is only enabled if there are no choices (since, in that case, variables belongs to the kind [MAP])
+  rl [running] : < QM : Machine | events : ev(QE, running), variables : MAPVAR > =>
+                 < QM : Machine | events : init-events    , variables : MAPVAR > .
+
+ --- Properties 
+ --- --------------------------
+ var SYS : Configuration .
+ var SYSk : [Configuration] .
+ var n   : Nat .
+ --- --------------------------
+
+ --- "valid" states without choices 
+ op state :  -> Prop .
+ eq SYS  |= state = true .
+ eq SYSk |= state = false .
+
+ --- User defined atomic propositions 
+ op prop : Nat -> Prop .
+ op prop : Nat Configuration -> Float .
+ eq SYS  |= prop(n) = prop(n, SYS) > 0.0 .
+ eq SYSk |= prop(n) = false . 
+
+endom
